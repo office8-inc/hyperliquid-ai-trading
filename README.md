@@ -97,6 +97,8 @@ PowerShellでは以下を使います。
 
 詳しくは [docs/freqtrade-capabilities.md](docs/freqtrade-capabilities.md) を参照。
 
+常駐ミニPCでの初回セットアップは [docs/mini-pc-setup.md](docs/mini-pc-setup.md) を参照。
+
 ## 初回セットアップ
 
 ```bash
@@ -104,10 +106,10 @@ git clone git@github.com:office8-inc/hyperliquid-ai-trading.git /opt/hyperliquid
 cd /opt/hyperliquid-ai-trading
 
 cp freqtrade/user_data/config-private.example.json freqtrade/user_data/config-private.json
-cp freqtrade/.env.example freqtrade/.env
 ```
 
 `freqtrade/user_data/config-private.json` に、Hyperliquidの `walletAddress` と API wallet の `privateKey` を入れます。
+`freqtrade/.env` は任意です。FreqtradeのDockerイメージを切り替える場合だけ、ミニPC上で `FREQTRADE_IMAGE=freqtradeorg/freqtrade:2026.4_freqai` のように設定します。
 
 ## 起動
 
