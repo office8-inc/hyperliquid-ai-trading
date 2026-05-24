@@ -1,6 +1,6 @@
 services:
   freqtrade:
-    image: freqtradeorg/freqtrade:2026.4
+    image: ${FREQTRADE_IMAGE:-freqtradeorg/freqtrade:2026.4}
     restart: unless-stopped
     container_name: hyperliquid-freqtrade
     volumes:

@@ -64,16 +64,50 @@ Windows PC
   - Hyperliquid dry_run / small live
 ```
 
+## Freqtradeでできることをこのプロジェクトから使う
+
+このプロジェクトは、Freqtrade本体をコピーせず、公式Dockerイメージをラップして使います。
+そのため、`freqtrade/freqtrade` のCLIコマンドは、このリポジトリの `scripts/` から呼び出せます。
+
+```bash
+# 任意のFreqtradeコマンドをそのまま呼ぶ
+./scripts/ft.sh --help
+./scripts/ft.sh list-exchanges
+
+# このプロジェクトのconfig.json + config-private.jsonを付けて呼ぶ
+./scripts/ftc.sh show-config
+./scripts/ftc.sh list-pairs --exchange hyperliquid --trading-mode futures --quote USDC --print-list
+./scripts/ftc.sh backtesting --strategy HLAiMvpStrategy
+
+# plot用イメージで呼ぶ
+./scripts/ft-plot.sh plot-profit
+
+# FreqAI用イメージで呼ぶ
+./scripts/ft-freqai.sh list-freqaimodels
+```
+
+PowerShellでは以下を使います。
+
+```powershell
+.\scripts\ft.ps1 --help
+.\scripts\ftc.ps1 show-config
+.\scripts\ft-plot.ps1 plot-profit
+.\scripts\ft-freqai.ps1 list-freqaimodels
+```
+
+詳しくは [docs/freqtrade-capabilities.md](docs/freqtrade-capabilities.md) を参照。
+
 ## 初回セットアップ
 
 ```bash
 git clone git@github.com:office8-inc/hyperliquid-ai-trading.git /opt/hyperliquid-ai-trading
-cd /opt/hyperliquid-ai-trading/freqtrade
+cd /opt/hyperliquid-ai-trading
 
-cp user_data/config-private.example.json user_data/config-private.json
+cp freqtrade/user_data/config-private.example.json freqtrade/user_data/config-private.json
+cp freqtrade/.env.example freqtrade/.env
 ```
 
-`user_data/config-private.json` に、Hyperliquidの `walletAddress` と API wallet の `privateKey` を入れます。
+`freqtrade/user_data/config-private.json` に、Hyperliquidの `walletAddress` と API wallet の `privateKey` を入れます。
 
 ## 起動
 
@@ -89,26 +123,16 @@ docker compose logs -f --tail=200 freqtrade
 ## よく使うコマンド
 
 ```bash
+cd /opt/hyperliquid-ai-trading
+
 # ペア確認
-docker compose run --rm freqtrade list-pairs \
-  --exchange hyperliquid \
-  --trading-mode futures \
-  --quote USDC \
-  --print-list
+./scripts/ftc.sh list-pairs --exchange hyperliquid --trading-mode futures --quote USDC --print-list
 
 # データ取得（Hyperliquidでは過去データ取得に強い制限があるため、ベストエフォート扱い）
-docker compose run --rm freqtrade download-data \
-  --config /freqtrade/user_data/config.json \
-  --config /freqtrade/user_data/config-private.json \
-  --trading-mode futures \
-  --pairs BTC/USDC:USDC ETH/USDC:USDC \
-  --timeframes 5m 15m 1h
+./scripts/ftc.sh download-data --trading-mode futures --pairs BTC/USDC:USDC ETH/USDC:USDC --timeframes 5m 15m 1h
 
 # バックテスト
-docker compose run --rm freqtrade backtesting \
-  --config /freqtrade/user_data/config.json \
-  --config /freqtrade/user_data/config-private.json \
-  --strategy HLAiMvpStrategy
+./scripts/ftc.sh backtesting --strategy HLAiMvpStrategy
 ```
 
 ## 実資金に進む条件

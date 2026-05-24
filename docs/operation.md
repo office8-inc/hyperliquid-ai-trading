@@ -42,6 +42,27 @@ docker compose up -d
 docker compose ps
 ```
 
+## Freqtrade CLIを使う
+
+任意のFreqtradeコマンドは、プロジェクトのラッパーから実行する。
+
+```bash
+# 生のFreqtrade CLI
+./scripts/ft.sh --help
+./scripts/ft.sh list-exchanges
+
+# config.json + config-private.json を自動付与
+./scripts/ftc.sh show-config
+./scripts/ftc.sh list-pairs --exchange hyperliquid --trading-mode futures --quote USDC --print-list
+./scripts/ftc.sh backtesting --strategy HLAiMvpStrategy
+
+# optional dependency image
+./scripts/ft-plot.sh plot-profit
+./scripts/ft-freqai.sh list-freqaimodels
+```
+
+対応範囲は `docs/freqtrade-capabilities.md` を参照。
+
 ## ログ確認
 
 ```bash

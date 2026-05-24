@@ -2,6 +2,8 @@
 .env
 freqtrade/.env
 freqtrade/user_data/config-private.json
+freqtrade/user_data/config-api.json
+freqtrade/user_data/config-live.json
 
 # Runtime data
 freqtrade/user_data/data/
