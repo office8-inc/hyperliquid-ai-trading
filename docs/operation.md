@@ -7,6 +7,7 @@
 | GitHub | コード、設定テンプレート、手順書を管理 |
 | Windows PC | 開発、ドキュメント編集、短時間検証 |
 | 自宅ミニPC | FreqtradeをDockerで24H稼働 |
+| 既存crow-bot常駐PC | WSL2 Ubuntu上でFreqtradeをDockerなし24H稼働 |
 
 ## 現在のステータス
 
@@ -54,12 +55,17 @@ Git管理しないもの:
 
 ## ミニPC初期セットアップ
 
+Docker構成で専用ミニPCを使う場合:
+
 1. Ubuntu Server系Linuxを入れる。
 2. 有線LANで接続する。
 3. スリープを無効化する。
 4. BIOSで停電復帰時の自動起動を有効化する。
 5. SSHはLANまたはVPN経由だけにする。
 6. Docker Engine、Docker Compose Plugin、Gitを入れる。
+
+既存crow-bot常駐PCのWindows 10 + WSL2構成を使う場合は、Dockerを入れずに `docs/native-wsl-setup.md` の手順を使う。
+この場合、Docker daemon、Docker bridge、Windows側の追加ポート公開は使わない。
 
 ## ミニPC要件
 
@@ -83,6 +89,8 @@ Freqtradeだけなら重いGPUは不要。AI推論をローカルで重く回す
 
 ## デプロイ
 
+Docker構成:
+
 ```bash
 cd /opt/hyperliquid-ai-trading
 git pull --ff-only
@@ -92,9 +100,20 @@ docker compose up -d
 docker compose ps
 ```
 
+WSL native構成:
+
+```bash
+cd /opt/hyperliquid-ai-trading
+git pull --ff-only
+sudo systemctl restart freqtrade-wsl.service
+systemctl status freqtrade-wsl.service --no-pager
+```
+
 ## Freqtrade CLIを使う
 
 任意のFreqtradeコマンドは、プロジェクトのラッパーから実行する。
+
+Docker構成:
 
 ```bash
 # 生のFreqtrade CLI
@@ -111,20 +130,44 @@ docker compose ps
 ./scripts/ft-freqai.sh list-freqaimodels
 ```
 
+WSL native構成:
+
+```bash
+./scripts/ft-native.sh --help
+./scripts/ftc-native.sh show-config
+./scripts/ftc-native.sh list-pairs --exchange hyperliquid --trading-mode futures --quote USDC --print-list
+```
+
 対応範囲は `docs/freqtrade-capabilities.md` を参照。
 
 ## ログ確認
+
+Docker構成:
 
 ```bash
 cd /opt/hyperliquid-ai-trading/freqtrade
 docker compose logs -f --tail=200 freqtrade
 ```
 
+WSL native構成:
+
+```bash
+journalctl -u freqtrade-wsl.service -f
+```
+
 ## 停止
+
+Docker構成:
 
 ```bash
 cd /opt/hyperliquid-ai-trading/freqtrade
 docker compose stop
+```
+
+WSL native構成:
+
+```bash
+sudo systemctl stop freqtrade-wsl.service
 ```
 
 ## 日次確認

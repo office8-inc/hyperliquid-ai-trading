@@ -3,6 +3,9 @@
 この手順は、常駐用の別PCで `dry_run` を開始するためのチェックリスト。
 このリポジトリは公開テンプレートなので、秘密鍵と実行時データは常駐PC内だけに置く。
 
+この手順はDocker構成の専用ミニPC向け。
+既存crow-bot常駐PCのWindows 10 + WSL2上でDockerなし運用する場合は、[native-wsl-setup.md](native-wsl-setup.md) を使う。
+
 ## 1. OSと基本設定
 
 推奨OS:

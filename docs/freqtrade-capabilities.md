@@ -1,9 +1,9 @@
 # Freqtrade Capabilities in This Project
 
-This repository does not copy the `freqtrade/freqtrade` source tree.
-Instead, it exposes the official Freqtrade Docker image through project-local wrappers.
+This repository does not copy the `freqtrade/freqtrade` source tree into this project.
+Instead, it exposes either the official Freqtrade Docker image or a native WSL Freqtrade install through project-local wrappers.
 
-That means the project can run the Freqtrade CLI commands provided by the selected Docker image while keeping local configuration, strategies, AI signals, logs, and operational docs in this repository.
+That means the project can run the Freqtrade CLI commands provided by the selected runtime while keeping local configuration, strategies, AI signals, logs, and operational docs in this repository.
 
 ## Docker images
 
@@ -25,6 +25,8 @@ freqtradeorg/freqtrade:2026.4_freqairl
 Use image variants when the command requires optional dependencies.
 
 ## Command wrappers
+
+### Docker wrappers
 
 Run any raw Freqtrade command:
 
@@ -65,9 +67,26 @@ PowerShell equivalents are available:
 .\scripts\ft-freqai.ps1 list-freqaimodels
 ```
 
+### Native WSL wrappers
+
+The native wrappers call `/opt/freqtrade/.venv/bin/freqtrade` by default.
+Set `FREQTRADE_DIR` or `FREQTRADE_BIN` if Freqtrade is installed elsewhere.
+
+```bash
+./scripts/ft-native.sh --help
+./scripts/ft-native.sh list-exchanges
+
+./scripts/ftc-native.sh show-config
+./scripts/ftc-native.sh list-pairs --exchange hyperliquid --trading-mode futures --quote USDC --print-list
+./scripts/ftc-native.sh backtesting --strategy HLAiMvpStrategy
+```
+
+Plotting and FreqAI commands require the corresponding optional dependencies in the native Freqtrade environment.
+If those dependencies are not installed, use the Docker `_plot`, `_freqai`, `_freqaitorch`, or `_freqairl` images, or install the optional dependencies in `/opt/freqtrade/.venv` after checking the official Freqtrade documentation.
+
 ## Freqtrade command coverage
 
-The wrapper can call the Freqtrade commands available in the Docker image, including:
+The wrappers can call the Freqtrade commands available in the selected runtime, including:
 
 ```text
 trade
@@ -111,5 +130,6 @@ recursive-analysis
 - The wrappers expose Freqtrade capabilities, but they do not make a profitable strategy.
 - Hyperliquid historical data is limited, so long-term Hyperliquid backtesting is constrained.
 - Commands that require optional dependencies may need the `_plot`, `_freqai`, `_freqaitorch`, or `_freqairl` image.
-- Live trading still requires manual validation on the mini PC: `docker compose config`, `show-config`, `list-pairs`, `dry_run`, restart tests, and alerts.
+- Native WSL commands use the installed `/opt/freqtrade` version, so keep it aligned with the documented Docker image version.
+- Live trading still requires manual validation on the target PC: `show-config`, `list-pairs`, `dry_run`, restart tests, and alerts. Docker deployments also require `docker compose config`.
 - Secrets must stay in ignored files such as `config-private.json`, `config-api.json`, or `config-live.json`.

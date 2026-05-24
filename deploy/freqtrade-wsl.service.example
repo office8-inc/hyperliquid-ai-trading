@@ -1,0 +1,19 @@
+[Unit]
+Description=Hyperliquid Freqtrade dry_run bot (WSL native)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=trading
+Group=trading
+Environment=FREQTRADE_DIR=/opt/freqtrade
+WorkingDirectory=/opt/hyperliquid-ai-trading
+ExecStart=/opt/hyperliquid-ai-trading/scripts/ftc-native.sh trade --logfile user_data/logs/freqtrade.log --db-url sqlite:///user_data/tradesv3.sqlite --strategy HLAiMvpStrategy
+Restart=on-failure
+RestartSec=20
+KillSignal=SIGINT
+TimeoutStopSec=120
+
+[Install]
+WantedBy=multi-user.target

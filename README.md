@@ -10,6 +10,7 @@ Freqtrade + Hyperliquid を使い、自宅ミニPCで 24H 稼働させる暗号�
 できること:
 
 - Freqtrade公式DockerイメージでBotを起動する準備
+- WSL2 Ubuntu上でDockerなしにBotを起動する準備
 - Hyperliquid futures向けの設定テンプレート管理
 - dry_runを前提にした最小戦略の配置
 - 自宅ミニPC運用の手順管理
@@ -19,13 +20,14 @@ Freqtrade + Hyperliquid を使い、自宅ミニPCで 24H 稼働させる暗号�
 - 実資金で勝てる戦略の確立
 - Hyperliquidでの長期バックテスト
 - AIシグナル生成スクリプトの実装
-- ミニPC上でのDocker起動検証
+- 常駐PC上での実起動検証
 - ライブ運用の監視・通知・バックアップの完成
 
 ## 方針
 
 - `freqtrade/freqtrade` 本体はフォークしない。
-- 公式Dockerイメージを使う。
+- Docker構成では公式Dockerイメージを使う。
+- Dockerなし構成では、WSL2 Ubuntu上の `/opt/freqtrade` に公式リポジトリをcloneして使う。
 - GitHubには設定テンプレート、戦略、手順書だけを置く。
 - 秘密鍵、取引DB、ログ、学習済みモデル、バックテスト結果はGit管理しない。
 - 最初は必ず `dry_run: true` で運用する。
@@ -62,12 +64,21 @@ Windows PC
   - Docker Compose
   - Freqtrade 24H稼働
   - Hyperliquid dry_run / small live
+
+既存crow-bot常駐PC
+  - Windows 10 + WSL2 Ubuntu
+  - Dockerなし native Freqtrade
+  - systemdでFreqtrade 24H稼働
+  - 既存Slack WebSocket / Cloudflare Tunnelとは分離
 ```
 
 ## Freqtradeでできることをこのプロジェクトから使う
 
-このプロジェクトは、Freqtrade本体をコピーせず、公式Dockerイメージをラップして使います。
+このプロジェクトは、Freqtrade本体をコピーしません。
+Docker構成では公式Dockerイメージを、Dockerなし構成ではWSL2 Ubuntu上の `/opt/freqtrade/.venv/bin/freqtrade` をラップして使います。
 そのため、`freqtrade/freqtrade` のCLIコマンドは、このリポジトリの `scripts/` から呼び出せます。
+
+Docker構成:
 
 ```bash
 # 任意のFreqtradeコマンドをそのまま呼ぶ
@@ -95,11 +106,20 @@ PowerShellでは以下を使います。
 .\scripts\ft-freqai.ps1 list-freqaimodels
 ```
 
+WSL native構成:
+
+```bash
+./scripts/ft-native.sh --help
+./scripts/ftc-native.sh show-config
+./scripts/ftc-native.sh list-pairs --exchange hyperliquid --trading-mode futures --quote USDC --print-list
+```
+
 詳しくは [docs/freqtrade-capabilities.md](docs/freqtrade-capabilities.md) を参照。
 
-常駐ミニPCでの初回セットアップは [docs/mini-pc-setup.md](docs/mini-pc-setup.md) を参照。
+常駐ミニPCでDockerを使う場合は [docs/mini-pc-setup.md](docs/mini-pc-setup.md) を参照。
+既存crow-bot機でDockerなしのWSL構成を使う場合は [docs/native-wsl-setup.md](docs/native-wsl-setup.md) を参照。
 
-## 初回セットアップ
+## Docker構成の初回セットアップ
 
 ```bash
 git clone git@github.com:office8-inc/hyperliquid-ai-trading.git /opt/hyperliquid-ai-trading
@@ -111,7 +131,9 @@ cp freqtrade/user_data/config-private.example.json freqtrade/user_data/config-pr
 `freqtrade/user_data/config-private.json` に、Hyperliquidの `walletAddress` と API wallet の `privateKey` を入れます。
 `freqtrade/.env` は任意です。FreqtradeのDockerイメージを切り替える場合だけ、ミニPC上で `FREQTRADE_IMAGE=freqtradeorg/freqtrade:2026.4_freqai` のように設定します。
 
-## 起動
+WSL native構成では、[docs/native-wsl-setup.md](docs/native-wsl-setup.md) のユーザー分離、`/opt/freqtrade` インストール、systemd設定を使います。
+
+## Docker構成の起動
 
 ```bash
 cd /opt/hyperliquid-ai-trading/freqtrade
@@ -122,7 +144,7 @@ docker compose ps
 docker compose logs -f --tail=200 freqtrade
 ```
 
-## よく使うコマンド
+## Docker構成でよく使うコマンド
 
 ```bash
 cd /opt/hyperliquid-ai-trading
