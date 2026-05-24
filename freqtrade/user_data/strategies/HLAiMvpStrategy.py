@@ -32,6 +32,18 @@ class HLAiMvpStrategy(IStrategy):
     exit_profit_only = False
     ignore_roi_if_entry_signal = False
 
+    order_types = {
+        "entry": "limit",
+        "exit": "limit",
+        "emergency_exit": "limit",
+        "force_entry": "limit",
+        "force_exit": "limit",
+        "stoploss": "limit",
+        "stoploss_on_exchange": True,
+        "stoploss_on_exchange_interval": 60,
+        "stoploss_on_exchange_limit_ratio": 0.99,
+    }
+
     ai_filter_enabled = False
     ai_signal_path = Path("/freqtrade/user_data/ai_signals/latest.json")
 
@@ -78,6 +90,19 @@ class HLAiMvpStrategy(IStrategy):
 
         dataframe.loc[exit_condition, ["exit_long", "exit_tag"]] = (1, "trend_or_rsi_exit")
         return dataframe
+
+    def leverage(
+        self,
+        pair: str,
+        current_time: datetime,
+        current_rate: float,
+        proposed_leverage: float,
+        max_leverage: float,
+        entry_tag: str | None,
+        side: str,
+        **kwargs,
+    ) -> float:
+        return 1.0
 
     @staticmethod
     def _rsi(dataframe: DataFrame, period: int = 14):

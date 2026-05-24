@@ -2,6 +2,26 @@
 
 Freqtrade + Hyperliquid を使い、自宅ミニPCで 24H 稼働させる暗号資産トレードBotの運用リポジトリです。
 
+## 現在の到達点
+
+このリポジトリは、完成済みの収益Botではありません。
+現時点では、FreqtradeをHyperliquid向けに安全に検証し始めるための運用雛形です。
+
+できること:
+
+- Freqtrade公式DockerイメージでBotを起動する準備
+- Hyperliquid futures向けの設定テンプレート管理
+- dry_runを前提にした最小戦略の配置
+- 自宅ミニPC運用の手順管理
+
+まだできていないこと:
+
+- 実資金で勝てる戦略の確立
+- Hyperliquidでの長期バックテスト
+- AIシグナル生成スクリプトの実装
+- ミニPC上でのDocker起動検証
+- ライブ運用の監視・通知・バックアップの完成
+
 ## 方針
 
 - `freqtrade/freqtrade` 本体はフォークしない。
@@ -11,6 +31,7 @@ Freqtrade + Hyperliquid を使い、自宅ミニPCで 24H 稼働させる暗号�
 - 最初は必ず `dry_run: true` で運用する。
 - AIは直接発注しない。AIは補助シグナルを出し、Freqtrade戦略とリスク管理を通す。
 - APIサーバー/Web UIはデフォルト無効。使う場合は、ミニPC側で強い認証情報に変更してから有効化する。
+- Hyperliquidでは、Bot専用のsubaccount/API walletを使い、Bot稼働中に同じ口座で手動売買しない。
 
 ## 安全性確認メモ
 
@@ -75,7 +96,7 @@ docker compose run --rm freqtrade list-pairs \
   --quote USDC \
   --print-list
 
-# データ取得
+# データ取得（Hyperliquidでは過去データ取得に強い制限があるため、ベストエフォート扱い）
 docker compose run --rm freqtrade download-data \
   --config /freqtrade/user_data/config.json \
   --config /freqtrade/user_data/config-private.json \
@@ -98,6 +119,24 @@ docker compose run --rm freqtrade backtesting \
 - 1日の最大損失額を決めている。
 - 初回資金は失ってもよい小額に限定している。
 - API walletを使い、本ウォレットの秘密鍵をBotに置いていない。
+- Bot専用subaccountで、手動売買と混在していない。
+
+## Hyperliquidの重要な制約
+
+Freqtrade公式ドキュメント上、Hyperliquidはfuturesのみ実用対象で、spotは未対応です。
+また、Hyperliquidは過去ローソク足の取得に強い制限があり、長期バックテストを前提にした開発には向きません。
+
+そのため、このプロジェクトの検証順序は以下にします。
+
+```text
+短期/限定データで戦略の動作確認
+↓
+ミニPCでdry_runを長めに回して実データを蓄積
+↓
+蓄積データで検証
+↓
+小額ライブ
+```
 
 ## 参照
 
