@@ -1,0 +1,6 @@
+{
+  "exchange": {
+    "walletAddress": "0xYOUR_MAIN_WALLET_ADDRESS",
+    "privateKey": "0xYOUR_API_WALLET_PRIVATE_KEY"
+  }
+}

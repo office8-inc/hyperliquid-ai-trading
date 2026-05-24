@@ -1,0 +1,13 @@
+{
+  "generated_at": "2026-05-24T09:00:00+09:00",
+  "signals": [
+    {
+      "pair": "BTC/USDC:USDC",
+      "bias": "long",
+      "confidence": 0.62,
+      "risk": "medium",
+      "expires_at": "2026-05-24T13:00:00+09:00",
+      "reason": "trend and market context are positive, but volatility is elevated"
+    }
+  ]
+}
